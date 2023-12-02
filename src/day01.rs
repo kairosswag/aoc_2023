@@ -1,5 +1,11 @@
 use std::fs;
 
+
+pub fn run() {
+    run_p1();
+    run_p2();
+}
+
 pub fn run_p1() {
     let res: u32 = fs::read_to_string("input/day01")
         .expect("Could not open file.")
