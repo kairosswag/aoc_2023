@@ -1,9 +1,10 @@
-use itertools::Itertools;
-use num::integer::lcm;
-use parse_display::{Display, FromStr};
 use std::collections::HashMap;
 use std::fs;
 use std::str::{FromStr, Lines};
+
+use itertools::Itertools;
+use num::integer::lcm;
+use parse_display::FromStr;
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Hash, Copy, Clone, Debug)]
 struct Node(char, char, char);
