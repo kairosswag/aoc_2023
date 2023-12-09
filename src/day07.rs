@@ -3,8 +3,6 @@ use std::fs;
 
 use itertools::Itertools;
 
-use crate::day07::HandType::{HighCard, OnePair};
-
 #[derive(Clone, Copy)]
 struct CamelBid {
     hand: Hand,
@@ -56,12 +54,7 @@ impl Hand {
             .next()
             .unwrap()
         {
-            (5, 0, 0, 0, 0)
-            | (4, 0, 0, 0, 0)
-            | (3, 0, 0, 0, 0)
-            | (2, 0, 0, 0, 0)
-            | (1, 0, 0, 0, 0)
-            | (0, 0, 0, 0, 0) => FiveOfAKind,
+            (_, 0, 0, 0, 0) => FiveOfAKind,
             (1, 4, 0, 0, 0) | (1, 3, 0, 0, 0) | (1, 2, 0, 0, 0) | (1, 1, 0, 0, 0) => FourOfAKind,
             (2, 3, 0, 0, 0) | (2, 2, 0, 0, 0) => FullHouse,
             (1, 1, 3, 0, 0) | (1, 1, 2, 0, 0) | (1, 1, 1, 0, 0) => ThreeOfAKind,
