@@ -6,15 +6,10 @@ use std::str::Lines;
 struct Card {
     line_no: u32,
     winning: HashSet<u32>,
-    yours: HashSet<u32>
+    yours: HashSet<u32>,
 }
 
 impl Card {
-    pub fn new(line_no: u32) -> Card {
-        Card { line_no, winning: HashSet::new(), yours: HashSet::new() }
-    }
-
-
     fn count_winning(&self) -> usize {
         self.yours.intersection(&self.winning).count()
     }
@@ -30,8 +25,11 @@ impl Card {
 }
 
 pub fn run() {
-    let res = crate::day04::solve(fs::read_to_string("input/day04")
-        .expect("Could not open file.").lines());
+    let res = crate::day04::solve(
+        fs::read_to_string("input/day04")
+            .expect("Could not open file.")
+            .lines(),
+    );
     println!("Day 04 Solution Part 1: {}", res.0);
     println!("Day 04 Solution Part 2: {}", res.1);
 }
@@ -47,12 +45,11 @@ fn solve(lines: Lines<'_>) -> (u32, u32) {
     for card in cards {
         let winning = card.count_winning() as u32;
 
-        for card_won in (card.line_no+1)..(card.line_no + 1 +winning) {
+        for card_won in (card.line_no + 1)..(card.line_no + 1 + winning) {
             let multi = won[to_idx(card.line_no)];
             won[to_idx(card_won)] += multi;
         }
     }
-
 
     (res_p1, won.iter().sum())
 }
@@ -65,14 +62,22 @@ fn parse_card(line: &str, line_no: u32) -> Card {
     let winning = parse_numbers(split_results.nth(0).expect("should be a value"));
     let yours = parse_numbers(split_results.nth(0).expect("should be a value"));
 
-    Card { line_no, winning, yours }
+    Card {
+        line_no,
+        winning,
+        yours,
+    }
 }
 
 fn parse_numbers(input: &str) -> HashSet<u32> {
     let mut parsed_set = HashSet::new();
     for hopeful_number in input.split_whitespace() {
         let hopeful_number = hopeful_number.trim();
-        parsed_set.insert(hopeful_number.parse::<u32>().expect("Not a number after all"));
+        parsed_set.insert(
+            hopeful_number
+                .parse::<u32>()
+                .expect("Not a number after all"),
+        );
     }
     parsed_set
 }

@@ -294,10 +294,6 @@ fn sort_by_source_id(rangy_vec: &mut Vec<Range>) {
     rangy_vec.sort_by(|a, b| a.source_range_start.cmp(&b.source_range_start));
 }
 
-fn sort_by_destination_id(rangy_vec: &mut Vec<Range>) {
-    rangy_vec.sort_by(|a, b| a.destination_range_start.cmp(&b.destination_range_start));
-}
-
 #[cfg(test)]
 pub mod test05 {
     use std::collections::VecDeque;
@@ -341,7 +337,6 @@ humidity-to-location map:
 56 93 4"#
             .lines();
         let mut almanac = parse(input);
-        let orig_seeds = almanac.seeds.clone();
         almanac.sort_by_source();
         // let res_p2 = solve_p2(&almanac, orig_seeds);
         // assert_eq!(res_p2, 46);

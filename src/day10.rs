@@ -1,11 +1,12 @@
-use crate::day10::Direction::{East, South, West};
-use crate::day10::Pipe::{
-    Ground, Horizontal, NorthToEast, NorthToWest, SouthToEast, SouthToWest, Start, Vertical,
-};
-use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::str::Lines;
+
+use itertools::Itertools;
+
+use crate::day10::Pipe::{
+    Ground, Horizontal, NorthToEast, NorthToWest, SouthToEast, SouthToWest, Start, Vertical,
+};
 
 pub fn run() {
     let file = fs::read_to_string("input/day10").expect("Could not open file.");

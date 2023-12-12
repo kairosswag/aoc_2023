@@ -4,8 +4,11 @@ use std::iter::zip;
 use std::str::Lines;
 
 pub fn run() {
-    let res = solve(fs::read_to_string("input/day03")
-        .expect("Could not open file.").lines());
+    let res = solve(
+        fs::read_to_string("input/day03")
+            .expect("Could not open file.")
+            .lines(),
+    );
     println!("Day 03 Solution Part 1: {}", res.0);
     println!("Day 03 Solution Part 2: {}", res.1);
 }
@@ -44,7 +47,9 @@ fn solve(lines: Lines<'_>) -> (u32, u32) {
     let mut res_p1 = 0;
     let mut gear_candidates = HashMap::new();
     for ((row, col), number) in numbers {
-        if let Some((special, row, col)) = scan_neighborhood_hit(row, col, number.len() as i32, &special_chars) {
+        if let Some((special, row, col)) =
+            scan_neighborhood_hit(row, col, number.len() as i32, &special_chars)
+        {
             // println!("found completed number {} @ ({},{}) matching {}", number, row, col, _special);
             let parsed = number.parse::<u32>().expect("could not parse number");
 
@@ -56,11 +61,20 @@ fn solve(lines: Lines<'_>) -> (u32, u32) {
             }
         }
     }
-    let res_p2 = gear_candidates.values().filter(|val| val.len() == 2).map(|val| val[0] * val[1]).sum();
+    let res_p2 = gear_candidates
+        .values()
+        .filter(|val| val.len() == 2)
+        .map(|val| val[0] * val[1])
+        .sum();
     (res_p1, res_p2)
 }
 
-fn scan_neighborhood_hit(row: i32, col: i32, len: i32, special_chars: &HashMap<(i32, i32), char>) -> Option<(char, i32, i32)> {
+fn scan_neighborhood_hit(
+    row: i32,
+    col: i32,
+    len: i32,
+    special_chars: &HashMap<(i32, i32), char>,
+) -> Option<(char, i32, i32)> {
     // scan top
     if row > 0 {
         for idx in col - 1..=col + len {
@@ -85,13 +99,16 @@ fn scan_neighborhood_hit(row: i32, col: i32, len: i32, special_chars: &HashMap<(
     return None;
 }
 
-fn complete_number(collected: &[char], row: i32, column: Option<i32>, numbers: &mut HashMap<(i32, i32), String>) {
+fn complete_number(
+    collected: &[char],
+    row: i32,
+    column: Option<i32>,
+    numbers: &mut HashMap<(i32, i32), String>,
+) {
     if collected.len() == 0 {
         return;
     }
     let column = column.expect("Got characters but no start??");
-    let number = collected.iter().collect::<String>().parse::<u32>().expect("Could not parse");
-    // println!("found completed number {} @ ({},{})", number, row, column);
 
     numbers.insert((row, column), collected.iter().collect());
 }

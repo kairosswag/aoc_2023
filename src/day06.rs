@@ -63,7 +63,5 @@ fn calc_winning_amount(time: u64, record_dist: u64) -> u64 {
 
 #[test]
 fn test() {
-    let test_input = r#"Time:      7  15   30
-Distance:  9  40  200"#;
     calc_winning_amount(7, 9);
 }

@@ -2,7 +2,6 @@ use itertools::Itertools;
 use std::collections::HashSet;
 use std::fs;
 use std::str::Lines;
-use std::time::Instant;
 
 pub fn run() {
     let file = fs::read_to_string("input/day11").expect("Could not open file.");
