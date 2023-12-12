@@ -10,11 +10,12 @@ mod day07;
 mod day08;
 mod day09;
 mod day10;
+mod day11;
 
 use std::time::Instant;
 
 fn main() {
     let now = Instant::now();
-    day10::run();
+    day11::run();
     println!("Took {} µs", now.elapsed().as_micros());
 }
