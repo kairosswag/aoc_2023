@@ -1,6 +1,8 @@
+use itertools::Itertools;
 use std::collections::HashSet;
 use std::fs;
 use std::str::Lines;
+use std::time::Instant;
 
 pub fn run() {
     let file = fs::read_to_string("input/day11").expect("Could not open file.");
@@ -16,17 +18,11 @@ pub fn run() {
 }
 
 fn solve(universe: &HashSet<(usize, usize)>) -> usize {
-    let mut total = 0;
-    let mut visited = HashSet::new();
-    for galaxy_a in universe {
-        for galaxy_b in universe {
-            if !visited.contains(&(galaxy_b, galaxy_a)) {
-                visited.insert((galaxy_a, galaxy_b));
-                total += calc_distance(galaxy_a, galaxy_b);
-            }
-        }
-    }
-    total
+    universe
+        .iter()
+        .tuple_combinations()
+        .map(|(g1, g2)| calc_distance(g1, g2))
+        .sum()
 }
 
 fn calc_distance((g1_x, g1_y): &(usize, usize), (g2_x, g2_y): &(usize, usize)) -> usize {
