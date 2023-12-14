@@ -1,4 +1,5 @@
 use std::fs;
+use std::ops::BitXor;
 use std::str::Lines;
 use std::time::Instant;
 
@@ -18,18 +19,53 @@ struct Grid {
 
 fn solve(mut lines: Lines) -> (usize, usize) {
     let mut total = 0;
+    let mut smudged_total = 0;
     while let Some(grid) = parse_grid(&mut lines) {
-        let row_reflections = determine_reflections(&grid.rows);
-        let col_reflections = determine_reflections(&grid.columns);
-        total += col_reflections.iter().sum::<usize>();
-        total += row_reflections.iter().map(|val| val * 100).sum::<usize>();
+        total += determine_reflections(&grid.rows) * 100;
+        total += determine_reflections(&grid.columns);
+
+        smudged_total += determine_smudged_reflection(&grid.rows) * 100;
+        smudged_total += determine_smudged_reflection(&grid.columns);
     }
 
-    (total, 5)
+    (total, smudged_total)
 }
 
-fn determine_reflections(val: &[usize]) -> Vec<usize> {
-    let mut found = Vec::new();
+fn determine_smudged_reflection(val: &[usize]) -> usize {
+    for pivot in 1..val.len() {
+        let steps = pivot.max(val.len() - pivot);
+        let non_matching = (0..=steps)
+            .filter(|idx| {
+                !matches(
+                    &val.get((pivot - 1).wrapping_sub(*idx)),
+                    &val.get(pivot + idx),
+                )
+            })
+            .collect::<Vec<usize>>();
+
+        if non_matching.len() == 1 {
+            let found_idx = non_matching[0];
+            if bit_diff_one(
+                &val.get((pivot - 1).wrapping_sub(found_idx)),
+                &val.get(pivot + found_idx),
+            ) {
+                return pivot;
+            }
+        }
+    }
+
+    0
+}
+
+fn bit_diff_one(a: &Option<&usize>, b: &Option<&usize>) -> bool {
+    match (a, b) {
+        (None, _) => false,
+        (_, None) => false,
+        (Some(a), Some(b)) => a.bitxor(*b).count_ones() == 1,
+    }
+}
+
+fn determine_reflections(val: &[usize]) -> usize {
     for pivot in 1..val.len() {
         let steps = pivot.max(val.len() - pivot);
         if (0..=steps).all(|idx| {
@@ -38,10 +74,11 @@ fn determine_reflections(val: &[usize]) -> Vec<usize> {
                 &val.get(pivot + idx),
             )
         }) {
-            found.push(pivot);
+            return pivot;
         }
     }
-    found
+
+    0
 }
 
 fn matches(a: &Option<&usize>, b: &Option<&usize>) -> bool {
@@ -98,7 +135,7 @@ fn test_1() {
 ..#.##.#.
 ..##..##.
 #.#.##.#."#;
-    assert_eq!((5, 5), solve(test.lines()));
+    assert_eq!((5, 300), solve(test.lines()));
 }
 
 #[test]
@@ -110,5 +147,5 @@ fn test_2() {
 #####.##.
 ..##..###
 #....#..#"#;
-    assert_eq!((400, 5), solve(test.lines()));
+    assert_eq!((400, 100), solve(test.lines()));
 }
