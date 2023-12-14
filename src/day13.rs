@@ -8,8 +8,8 @@ pub fn run() {
     let now = Instant::now();
     let (res_1, res_2) = solve(file.lines());
     println!("Solutions took {} µs", now.elapsed().as_micros());
-    println!("Day 12 Solution Part 1: {}", res_1);
-    println!("Day 12 Solution Part 2: {}", res_2);
+    println!("Day 13 Solution Part 1: {}", res_1);
+    println!("Day 13 Solution Part 2: {}", res_2);
 }
 
 struct Grid {
