@@ -24,7 +24,7 @@ struct MirrorMess {
 struct Comparable(Vec<usize>);
 
 impl MirrorMess {
-    fn to_compareable(&self) -> Vec<usize> {
+    fn to_comparable(&self) -> Vec<usize> {
         let mut compare = Vec::with_capacity(3);
         for ((x_val, y_val), rock) in self.grid.iter().sorted() {
             compare.push(*x_val);
@@ -106,7 +106,7 @@ fn solve(lines: Lines) -> (usize, usize) {
     let mut curr_cycle: usize = 1;
     let cycle_repeat;
     loop {
-        let current_compare = current_map.to_compareable();
+        let current_compare = current_map.to_comparable();
         if !found_maps.contains_key(&current_compare) {
             let tilted = current_map.tilt_north();
             let west = tilted.rotate();
