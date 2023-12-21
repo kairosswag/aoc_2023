@@ -20,6 +20,7 @@ mod day14;
 mod day15;
 mod day16;
 mod day17;
+mod day18;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -46,7 +47,8 @@ fn main() {
         "day14" => day14::run(),
         "day15" => day15::run(),
         "day16" => day16::run(),
-        "day17" | "today" => day17::run(),
+        "day17" => day17::run(),
+        "day18" | "today" => day18::run(),
         _ => unreachable!("Someone forgot to add the day."),
     }
     println!("Total took {} µs", now.elapsed().as_micros());
