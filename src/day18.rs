@@ -1,13 +1,12 @@
-use ascii::AsAsciiStr;
-use itertools::{assert_equal, chain, Itertools};
-use parse_display::{Display, FromStr};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::fmt::format;
 use std::fs;
-use std::iter::zip;
 use std::str::FromStr;
 use std::time::Instant;
+
+use ascii::AsAsciiStr;
+use itertools::{chain, Itertools};
+use parse_display::{Display, FromStr};
 
 #[derive(Display, FromStr, PartialEq, Debug)]
 #[display("{direction} {value} ({color_code}")]
@@ -131,14 +130,6 @@ impl Edge {
             None
         }
     }
-
-    fn self_cut(&mut self, new_end: i32) {
-        if self.start_idx <= new_end {
-            self.end_idx = new_end;
-        } else {
-            unreachable!("cut my life into pieces");
-        }
-    }
 }
 
 pub fn run() {
@@ -246,8 +237,6 @@ fn solve_p2(instructions: &[DigInstruction]) -> usize {
             broad_total -= (edge.end_idx - edge.start_idx + 1) as usize;
             horizontal_edges.push(edge);
         }
-        dbg!(res);
-        dbg!(broad_total);
         total += res;
         total += broad_total;
     }
@@ -346,89 +335,6 @@ fn find_vert_edges(hor_edges: &[Edge], vertical_edges: &HashSet<Edge>) -> Vec<Ed
     )
     .map(|val| *val)
     .collect()
-}
-
-fn merge_insert(
-    edge: Edge,
-    merge: bool,
-    horizontal_edges: &mut BinaryHeap<Edge>,
-    vertical_edges: &mut HashSet<Edge>,
-) -> bool {
-    let mut popped = Vec::new();
-    let mut matching = Vec::new();
-    let own_range = edge.start_idx..=edge.end_idx;
-    while let Some(value) = horizontal_edges.pop() {
-        if value.height > edge.height {
-            popped.push(value);
-        } else if value.height == edge.height {
-            let range = value.start_idx..=value.end_idx;
-            if range.contains(&edge.start_idx)
-                || range.contains(&edge.end_idx)
-                || own_range.contains(&value.start_idx)
-                || own_range.contains(&value.end_idx)
-            {
-                matching.push(value);
-            } else {
-                popped.push(value);
-            }
-        } else {
-            popped.push(value);
-            break; // since it's a max-heap only smaller values will occur from now
-        }
-    }
-
-    // print_vert_edges(&vertical_edges);
-    matching.push(edge);
-    let mut top_vert_edges: Vec<Edge> = chain(
-        matching
-            .iter()
-            .filter_map(|hor| find(hor.height, hor.start_idx, vertical_edges)),
-        matching
-            .iter()
-            .filter_map(|hor| find(hor.height, hor.end_idx, vertical_edges)),
-    )
-    .map(|val| *val)
-    .sorted()
-    .collect();
-
-    // // cut top_vert_edges by one
-    // for top_vert_edge in &mut top_vert_edges {
-    //     vertical_edges.remove(&top_vert_edge);
-    //     top_vert_edge.end_idx -= 1;
-    //     vertical_edges.insert(*top_vert_edge);
-    // }
-
-    let resulting: Vec<Edge> = top_vert_edges
-        .iter()
-        .tuples()
-        .map(|(vert_edge_a, vert_edge_b)| {
-            println!("hor for {:?}, {:?}", vert_edge_a, vert_edge_b);
-
-            let height = edge.height;
-            let start_idx = vert_edge_a.height.min(vert_edge_b.height);
-            let end_idx = vert_edge_a.height.max(vert_edge_b.height);
-            Edge {
-                start_idx,
-                end_idx,
-                height,
-            }
-        })
-        .collect();
-
-    let mut last = true;
-    for val in resulting {
-        last = false;
-        println!("resulting {:?}", val);
-        println!("edge      {:?}", edge);
-        horizontal_edges.push(val);
-    }
-
-    for val in popped {
-        horizontal_edges.push(val);
-    }
-
-    println!("last? {}", last);
-    last
 }
 
 fn solve(instructions: &[DigInstruction]) -> usize {
@@ -635,25 +541,5 @@ U 2 (#7a21e3)"#;
             .map(|input| input.parse::<DigInstruction>().expect("or not"))
             .collect();
         assert_eq!(952408144115, solve_p2(&instructions));
-    }
-
-    fn test_spiral() {
-        let input = r#"R 1 (#000010)
-D 3 (#000031)
-R 1 (#000010)
-U 3 (#000033)
-R 1 (#000010)
-D 4 (#000041)
-R 1 (#000010)
-U 5 (#000043)
-R 1 (#000010)
-U 1 (#000013)
-L 5 (#000052)
-D 1 (#000011)"#;
-        let instructions: Vec<DigInstruction> = input
-            .lines()
-            .map(|input| input.parse::<DigInstruction>().expect("or not"))
-            .collect();
-        assert_eq!(12, solve_p2(&instructions));
     }
 }
