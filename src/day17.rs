@@ -221,7 +221,15 @@ fn test() {
 2546548887735
 4322674655533"#;
     let res = solve(input.as_bytes());
-    assert_eq!((102, 5), res);
+    assert_eq!((102, 94), res);
+}
+
+#[test]
+fn test2() {
+    let input = r#"1111999999
+2222999999"#;
+    let res = solve_p1(input.as_bytes(), 1, 3);
+    assert_eq!(70, res);
 }
 
 #[test]
