@@ -61,7 +61,7 @@ pub fn run() {
     file.read_to_end(&mut input).expect("could not read");
     let now = Instant::now();
     let (res_1, res_2) = solve(&input);
-    println!("Solutions took {} µs", now.elapsed().as_micros());
+    println!("Solutions took {} ms", now.elapsed().as_millis());
     println!("Day 17 Solution Part 1: {}", res_1);
     println!("Day 17 Solution Part 2: {}", res_2);
 }
