@@ -54,7 +54,7 @@ fn main() {
         "day18" => day18::run(),
         "day19" => day19::run(),
         "day20" => day20::run(),
-        "day22" | "today" => day20::run(),
+        "day20" | "today" => day20::run(),
         _ => unreachable!("Someone forgot to add the day."),
     }
     println!("Total took {} µs", now.elapsed().as_micros());

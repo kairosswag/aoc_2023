@@ -12,7 +12,7 @@ pub fn run() {
     let modules = parse(file.lines());
 
     let now = Instant::now();
-    let (res_1, res_2) = (solve(&modules), solve_p2(&modules));
+    let (res_1, res_2) = (solve(&modules), solvey_solve(&modules));
     println!("Solutions took {} µs", now.elapsed().as_micros());
     println!("Day 20 Solution Part 1: {}", res_1);
     println!("Day 20 Solution Part 2: {}", res_2);
@@ -39,11 +39,17 @@ fn solve_p2(modules: &HashMap<&str, (Type, Vec<&str>)>) -> usize {
         })
         .fold(
             HashMap::new(),
-            |mut acc: HashMap<&str, Vec<(&str, Type)>>, (key, value)| {
+            |mut acc: HashMap<&str, HashSet<(&str, Type)>>, (key, value)| {
                 let entry = acc
                     .entry(key)
-                    .and_modify(|values| values.push(value))
-                    .or_insert(vec![value]);
+                    .and_modify(|values| {
+                        values.insert(value);
+                    })
+                    .or_insert({
+                        let mut set = HashSet::new();
+                        set.insert(value);
+                        set
+                    });
 
                 acc
             },
@@ -64,78 +70,175 @@ fn solve_p2(modules: &HashMap<&str, (Type, Vec<&str>)>) -> usize {
         .map(|val| (val, None))
         .collect();
 
-    let mut queue = VecDeque::new();
+    for (node_conjunction, _) in [(&"rs", "hi")] {
+        let direct_flip_flops: HashMap<&str, Option<usize>> = reverse_modules
+            .get(node_conjunction)
+            .unwrap()
+            .iter()
+            .map(|val| (val.0, None))
+            .collect();
 
-    for press in 1.. {
-        queue.push_front((START, Pulse::LOW, START));
-        while let Some((name, pulse, source)) = queue.pop_back() {
-            let module = modules.get(name);
-            let module = if let Some(module) = module {
-                module
-            } else {
-                assert_eq!("rx", name);
-                continue;
-            };
-            match module {
-                (Type::Start, targets) => {
-                    for target in targets {
-                        queue.push_front((*target, pulse, name))
-                    }
+        let relevant_flops: HashSet<&str> = flip_flop_groups
+            .iter()
+            .filter(|(_ff, g_name)| *g_name == node_conjunction)
+            .map(|(ff, g_name)| *ff)
+            .unique()
+            .collect();
+        let start_flop = modules
+            .get(START)
+            .unwrap()
+            .1
+            .iter()
+            .find(|val| relevant_flops.contains(*val))
+            .unwrap();
+        let mut queue = VecDeque::new();
+        let mut relevant_sorted = Vec::new();
+        let mut curr_sorting = Some(START);
+        'outer: while let Some(previous) = curr_sorting {
+            for next in &modules.get(previous).unwrap().1 {
+                if relevant_flops.contains(next) {
+                    relevant_sorted.push(*next);
+                    curr_sorting = Some(next);
+                    continue 'outer;
                 }
-                (Type::FlipFlop, targets) => {
-                    if pulse != HIGH {
-                        let state = *flip_flop_state.get(name).unwrap_or(&false);
+            }
+            curr_sorting = None
+        }
+        relevant_sorted.reverse();
 
-                        let pulse = if state { LOW } else { HIGH };
-                        flip_flop_state.insert(name, !state);
+        print!("NODES    |");
+        for val in &relevant_sorted {
+            if direct_flip_flops.contains_key(val) {
+                print!("++ {} ++|", val);
+            } else {
+                print!("   {}   |", val);
+            }
+        }
+        println!();
+
+        let mut last_push = LOW;
+
+        for press in 1..81920 {
+            queue.push_front((*start_flop, Pulse::LOW, START));
+            while let Some((name, pulse, source)) = queue.pop_back() {
+                let module = modules.get(name).unwrap();
+                match module {
+                    (Type::Start, _targets) => {
+                        unreachable!("that was not the plan");
+                    }
+                    (Type::FlipFlop, targets) => {
+                        if pulse != HIGH {
+                            let state = *flip_flop_state.get(name).unwrap_or(&false);
+
+                            let pulse = if state { LOW } else { HIGH };
+                            flip_flop_state.insert(name, !state);
+
+                            for target in targets {
+                                queue.push_front((*target, pulse, name));
+                            }
+                        }
+                    }
+                    (Type::Conjunction, targets) => {
+                        let pulse = update_conjunction_and_trigger(
+                            name,
+                            source,
+                            pulse,
+                            &mut conjunction_state,
+                        );
+                        last_push = pulse;
 
                         for target in targets {
-                            queue.push_front((*target, pulse, name));
+                            if relevant_flops.contains(target) {
+                                queue.push_front((*target, pulse, name));
+                            }
                         }
                     }
                 }
-                (Type::Conjunction, targets) => {
-                    let pulse =
-                        update_conjunction_and_trigger(name, source, pulse, &mut conjunction_state);
-                    for target in targets {
-                        queue.push_front((*target, pulse, name));
-                    }
-                }
             }
-        }
-        if press % 1_000_000 == 0 {
-            println!("press {press}");
-        }
-        let mut updated = false;
-        // after each press: look what the state of the relevant conjunctions is
-        for (conjunction, value) in node_conjunctions.iter_mut() {
-            if conjunction_state
-                .get(*conjunction)
-                .unwrap()
-                .iter()
-                .all(|state| state.1 == HIGH)
+
+            if last_push == LOW {
+                println!("aaaaaaaaaaaaaaaaaaaaah {press}");
+            }
+
+            if press == 4003
+                || press == 4002
+                || press == 4004
+                || press == 8006
+                || press == 8005
+                || press == 8007
+                || press == 8190
+                || press == 8191
+                || press == 8192
             {
-                if let Some(value) = value {
-                    if press % *value != 0 {
-                        println!("invalid value for {conjunction} found at {press}, already got {value}, mod is {}", press % *value);
+                let mut number_collect = Vec::new();
+                print!("STP {number:>3} |", number = press);
+                for sort in &relevant_sorted {
+                    let val = if *flip_flop_state.get(sort).unwrap_or(&false) {
+                        number_collect.push(1);
+                        "H"
                     } else {
-                        println!("found repetition of {conjunction} at {value}")
-                    }
-                } else {
-                    println!("found initial {conjunction} at {press}");
-                    *value = Some(press);
-                    updated = true;
+                        number_collect.push(0);
+                        "l"
+                    };
+                    print!("    {val}   |");
                 }
+
+                let mut number = 0;
+                for val in number_collect.iter() {
+                    number = number << 1;
+                    number += val;
+                }
+
+                println!("  {number}");
+
+                print!("CONJ  {node_conjunction} |");
+
+                let state = conjunction_state.get(node_conjunction).unwrap();
+                for sort in &relevant_sorted {
+                    let pulse = state.iter().find(|val| val.0 == *sort).map(|val| val.1);
+                    let print = match pulse {
+                        Some(HIGH) => "    H   |",
+                        Some(LOW) => "    l   |",
+                        None => "        |",
+                    };
+                    print!("{print}");
+                }
+                println!(
+                    "  {:?} -- {}",
+                    last_push,
+                    conjunction_state
+                        .get(node_conjunction)
+                        .unwrap()
+                        .iter()
+                        .all(|val| val.1 == HIGH)
+                );
             }
-        }
-        if updated && node_conjunctions.iter().all(|val| val.1.is_some()) {
-            break;
+
+            // let mut number_collect = Vec::new();
+            // print!("STP {number:>3} |", number = press);
+            // for i in 0..rel.len() {
+            //     let val = if *flip_flop_state.get(&rel[i]).unwrap_or(&false) {
+            //         number_collect.push(1);
+            //         "H"
+            //     } else {
+            //         number_collect.push(0);
+            //         "l"
+            //     };
+            //     print!("    {val}   |");
+            // }
+            //
+            // let mut number = 0;
+            // for val in number_collect.iter().rev() {
+            //     number = number << 1;
+            //     number += val;
+            // }
+            //
+            // println!("  {number}");
         }
     }
 
-    node_conjunctions
-        .iter()
-        .for_each(|val| println!("value: {:?}", val));
+    let val = usize::from_str_radix("111110100011", 2).unwrap();
+    println!("val? {val}");
 
     5
 }
@@ -221,6 +324,80 @@ fn solve(modules: &HashMap<&str, (Type, Vec<&str>)>) -> usize {
     tally.low_pulses * tally.high_pulses
 }
 
+fn solvey_solve(modules: &HashMap<&str, (Type, Vec<&str>)>) -> usize {
+    let mut conjunction_state = extract_conjunction_states(modules);
+    let mut flip_flop_state: HashMap<&str, bool> = HashMap::new();
+
+    let mut queue = VecDeque::new();
+    let mut presses_needed = None;
+
+    let relevant = ["dd", "fh", "fc", "xp"];
+    let mut relev_map: HashMap<&str, Option<usize>> =
+        relevant.iter().map(|val| (*val, None)).collect();
+
+    for press in 1.. {
+        queue.push_front((START, Pulse::LOW, START));
+        while let Some((name, pulse, source)) = queue.pop_back() {
+            if pulse == HIGH && relevant.contains(&source) {
+                if let Some(value) = &relev_map.get(source).unwrap() {
+                    if press % value != 0 {
+                        println!("for {source} found {value} but {press} does not match");
+                    }
+                } else {
+                    println!("initial found {source} at {press}");
+                    relev_map.insert(source, Some(press));
+
+                    if relev_map.values().all(|val| val.is_some()) {
+                        return relev_map
+                            .values()
+                            .map(|val| val.unwrap())
+                            .reduce(|a, b| a * b)
+                            .unwrap();
+                    }
+                }
+            }
+
+            let module = modules.get(name);
+            let module = if let Some(module) = module {
+                module
+            } else {
+                assert_eq!("rx", name);
+                if pulse == LOW && presses_needed.is_none() {
+                    presses_needed = Some(press);
+                }
+                continue;
+            };
+            match module {
+                (Type::Start, targets) => {
+                    for target in targets {
+                        queue.push_front((*target, pulse, name))
+                    }
+                }
+                (Type::FlipFlop, targets) => {
+                    if pulse != HIGH {
+                        let state = *flip_flop_state.get(name).unwrap_or(&false);
+
+                        let pulse = if state { LOW } else { HIGH };
+                        flip_flop_state.insert(name, !state);
+
+                        for target in targets {
+                            queue.push_front((*target, pulse, name));
+                        }
+                    }
+                }
+                (Type::Conjunction, targets) => {
+                    let pulse =
+                        update_conjunction_and_trigger(name, source, pulse, &mut conjunction_state);
+                    for target in targets {
+                        queue.push_front((*target, pulse, name));
+                    }
+                }
+            }
+        }
+    }
+    5
+}
+
 fn extract_conjunction_states<'a>(
     modules: &HashMap<&'a str, (Type, Vec<&'a str>)>,
 ) -> HashMap<&'a str, Vec<(&'a str, Pulse)>> {
@@ -292,7 +469,7 @@ enum Pulse {
     HIGH,
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 enum Type {
     Start,
     FlipFlop,
