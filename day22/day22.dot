@@ -1,0 +1,117 @@
+digraph {
+jx [color="blue"]
+jx -> rt, rs
+cc [color="red"]
+cc -> cd, fc, qr, nl, gk, zr
+qs [color="blue"]
+qs -> cl, rs
+zr [color="blue"]
+zr -> cq
+mx [color="blue"]
+mx -> nr, pm
+mj [color="blue"]
+mj -> qr, cc
+cj [color="blue"]
+cj -> cc, nt
+jv [color="blue"]
+jv -> sp
+dj [color="blue"]
+dj -> bd, zc
+kt [color="blue"]
+kt -> lt
+broadcaster -> gz, xg, cd, sg
+dn [color="red"]
+dn -> rx
+br [color="blue"]
+br -> nf, bd
+cd [color="blue"]
+cd -> cc, nl
+zc [color="blue"]
+zc -> jq, bd
+xg [color="blue"]
+xg -> cf, pm
+nz [color="blue"]
+nz -> gm, bd
+dd [color="red"]
+dd -> dn
+nb [color="blue"]
+nb -> sl
+pm [color="red"]
+pm -> kt, xg, xp, jv, sp
+fh [color="red"]
+fh -> dn
+rt [color="blue"]
+rt -> qq
+qq [color="blue"]
+qq -> rs, hd
+hd [color="blue"]
+hd -> qs, rs
+xp [color="red"]
+xp -> dn
+pj [color="blue"]
+pj -> cc, mj
+gz [color="blue"]
+gz -> bd, kb
+zd [color="blue"]
+zd -> jv, pm
+cq [color="blue"]
+cq -> cj, cc
+qr [color="blue"]
+qr -> gk
+ng [color="blue"]
+ng -> jk, bd
+kb [color="blue"]
+kb -> bd, sv
+cl [color="blue"]
+cl -> zx, rs
+gj [color="blue"]
+gj -> zd, pm
+sl [color="blue"]
+sl -> kx
+sv [color="blue"]
+sv -> br
+nf [color="blue"]
+nf -> bd, nz
+zx [color="blue"]
+zx -> rs
+nt [color="blue"]
+nt -> mn, cc
+rh [color="blue"]
+rh -> nb, rs
+gk [color="blue"]
+gk -> ln
+bd [color="red"]
+bd -> gm, gz, fh, sv
+jq [color="blue"]
+jq -> ng, bd
+sp [color="blue"]
+sp -> pc
+sg [color="blue"]
+sg -> rs, rh
+kx [color="blue"]
+kx -> jx
+fc [color="red"]
+fc -> dn
+cf [color="blue"]
+cf -> gj, pm
+pc [color="blue"]
+pc -> kt, pm
+jk [color="blue"]
+jk -> bd
+vf [color="blue"]
+vf -> pm
+rs [color="red"]
+rs -> sg, dd, sl, kx, nb, rt
+nr [color="blue"]
+nr -> vf, pm
+ln [color="blue"]
+ln -> zr, cc
+lt [color="blue"]
+lt -> pm, mx
+gm [color="blue"]
+gm -> dj
+nl [color="blue"]
+nl -> pj
+mn [color="blue"]
+mn -> cc
+}

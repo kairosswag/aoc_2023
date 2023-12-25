@@ -22,6 +22,7 @@ mod day16;
 mod day17;
 mod day18;
 mod day19;
+mod day20;
 mod day22;
 
 fn main() {
@@ -52,7 +53,8 @@ fn main() {
         "day17" => day17::run(),
         "day18" => day18::run(),
         "day19" => day19::run(),
-        "day22" | "today" => day19::run(),
+        "day20" => day20::run(),
+        "day22" | "today" => day20::run(),
         _ => unreachable!("Someone forgot to add the day."),
     }
     println!("Total took {} µs", now.elapsed().as_micros());
